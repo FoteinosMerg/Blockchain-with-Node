@@ -1,7 +1,7 @@
 "use strict";
 
 const Block = require("./block");
-const proofOfWork = require("./proofTools");
+const proofOfWork = require("./proof-tools");
 
 class Blockchain {
   constructor(createGenesisBlock = true) {
@@ -11,8 +11,11 @@ class Blockchain {
   }
 
   toString() {
-    const stringList = [];
-    this.chain.forEach(block => stringList.push(block.toString()));
+    const stringList = [
+      `
+      type          : Blockchain\n`
+    ];
+    this.chain.forEach(block => stringList.push(block.toString() + "\n"));
     return stringList.join("");
   }
 

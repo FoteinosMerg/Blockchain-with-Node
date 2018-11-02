@@ -49,6 +49,7 @@ class Block {
 
   toString() {
     return `
+      type          : Block
       index         : ${this.index}
       nonce         : ${this.nonce}
       difficulty    : ${this.difficulty}

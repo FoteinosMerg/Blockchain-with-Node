@@ -4,5 +4,6 @@ module.exports = {
   P2P_PORT: process.env.P2P_PORT,
   PEERS: process.env.PEERS,
   DIFFICULTY: process.env.DIFFICULTY,
-  MINE_RATE: process.env.MINE_RATE
+  MINE_RATE: process.env.MINE_RATE,
+  INITIAL_BALANCE: process.env.INITIAL_BALANCE
 };
