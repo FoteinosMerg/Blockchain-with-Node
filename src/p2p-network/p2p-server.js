@@ -63,7 +63,7 @@ class P2PServer {
 
   broadcastTransaction(transaction) {
     /*
-    ...
+    Broadcastast the inserted transaction to the whole p2p-network
     */
     this.sockets.forEach(socket => this.sendTransaction(socket, transaction));
   }

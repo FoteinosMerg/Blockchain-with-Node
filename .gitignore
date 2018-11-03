@@ -1,5 +1,5 @@
 node_modules/
 package-lock.json
 .env
-src/config/dev.js
-src/blockchain/tests/
+./src/config/dev.js
+./src/blockchain/tests/
