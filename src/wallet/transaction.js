@@ -11,11 +11,12 @@ class Transaction {
 
   toString() {}
 
-  /*
-  Keeps actual creation of a transaction separate from the constructor method due to
-  error message (returns undefined) in case of amount exceeding the sender's balance
-  */
   static new(senderWallet, recipient, amount) {
+    /*
+    Keeps actual creation of a transaction separate from the constructor method due to
+    error message (returns undefined) in case of amount exceeding the sender's balance
+    */
+
     if (amount > senderWallet.balance) {
       // Exit with error message
       console.log(`\n * Amount ${amount} exceeds current balance`);
@@ -41,6 +42,26 @@ class Transaction {
       // Sign (modifies its header) and return transaction
       senderWallet.sign(transaction);
       return transaction;
+    }
+  }
+
+  update(senderWallet, recipient, amount) {
+    if (amount > senderWallet.balance) {
+      // Exit with error message
+      console.log(`\n * Amount ${amount} exceeds current balance`);
+      return;
+    } else {
+      this.outputs.push({
+        amount: amount,
+        address: recipient
+      });
+
+      // Substract sent amount from sender's wallet
+      senderWallet.balance = senderWallet.balance - amount;
+
+      // Re-sign (modifies its header) and return transaction
+      senderWallet.sign(this);
+      return this;
     }
   }
 }

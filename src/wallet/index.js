@@ -1,3 +1,6 @@
 "use strict";
 
-module.exports = require("./wallet");
+const Wallet = require("./wallet");
+const TransactionPool = require("./transaction-pool");
+
+module.exports = { Wallet, TransactionPool};

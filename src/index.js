@@ -10,10 +10,13 @@ const bodyParser = require("body-parser");
 // Load files
 const Blockchain = require("./blockchain");
 const { P2PServer } = require("./p2p-network");
+const { Wallet, TransactionPool } = require("./wallet");
 const { HTTP_PORT } = require("./config");
 
-// Initiatlize app, blockchain and p2p (web-socket) server
+// Initiatlize app and p2p (web-socket) server
 const app = express();
+const wallet = new Wallet();
+const transactionPool = new TransactionPool();
 const blockchain = new Blockchain();
 const p2pServer = new P2PServer(blockchain);
 
@@ -27,12 +30,26 @@ app.get("/chain", (req, res) => {
 });
 
 app.get("/transactions", (req, res) => {
+  res.json(transactionPool.transactions);
+});
+
+app.post("/transact", (req, res) => {
+  const { recipient, amount } = req.body;
+  const transaction = wallet.performTransaction(
+    recipient,
+    amount,
+    transactionPool
+  );
+  res.redirect("./transactions");
+});
+
+app.get("/pendingData", (req, res) => {
   res.json(blockchain.pendingData);
 });
 
-app.post("/transactions/new", (req, res) => {
+app.post("/pendingData/new", (req, res) => {
   const index = blockchain.storeTransactions(req.body.data);
-  res.redirect("/transactions");
+  res.redirect("/pendingData");
 });
 
 app.post("/mine", (req, res) => {

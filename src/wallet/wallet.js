@@ -2,6 +2,7 @@
 
 const sha256 = require("crypto-js/sha256");
 const Signer = require("./signature-tools");
+const Transaction = require("./transaction");
 const { INITIAL_BALANCE } = require("../config");
 
 class Wallet {
@@ -19,26 +20,6 @@ class Wallet {
       type      : Wallet
       balance   : ${this.balance}
       publicKey : ${this.publicKey.toString().substring(0, 64)}...`;
-  }
-
-  update(transaction, recipient, amount) {
-    if (amount > this.balance) {
-      // Exit with error message
-      console.log(`\n * Amount ${amount} exceeds current balance`);
-      return;
-    } else {
-      transaction.outputs.push({
-        amount: amount,
-        address: recipient
-      });
-
-      // Substract sent amount from sender's wallet
-      this.balance = this.balance - amount;
-
-      // Re-sign (modifies its header) and return transaction
-      this.sign(transaction);
-      return transaction;
-    }
   }
 
   sign(transaction) {
@@ -59,6 +40,22 @@ class Wallet {
       sha256(JSON.stringify(transaction.outputs)).toString()
     );
   }
-}
 
+  performTransaction(recipient, amount, transactionPool) {
+    if (amount > this.balance) {
+      // Exit with error message
+      console.log(`\n * Amount ${amount} exceeds current balance`);
+      return;
+    } else {
+      let transaction = transactionPool.findBySender(this.publicKey);
+      if (transaction) {
+        transaction.update(this, recipient, amount);
+      } else {
+        transaction = Transaction.new(this, recipient, amount);
+        transactionPool.update(transaction);
+      }
+      return transaction;
+    }
+  }
+}
 module.exports = Wallet;
