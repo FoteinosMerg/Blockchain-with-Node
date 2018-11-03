@@ -4,12 +4,14 @@ const ws = require("ws");
 const { P2P_PORT } = require("../config");
 const PEERS = process.env.PEERS ? process.env.PEERS.split(", ") : [];
 const MESSAGE_TYPES = {
-  chain: "CHAIN"
+  chain: "CHAIN",
+  transaction: "TRANSACTION"
 };
 
 class P2PServer {
-  constructor(blockchain) {
+  constructor(blockchain, transactionPool) {
     this.blockchain = blockchain;
+    this.transactionPool = transactionPool;
     this.sockets = [];
   }
 
@@ -43,9 +45,9 @@ class P2PServer {
   }
 
   connectTo(socket, callback) {
-    //
-    // Core helper function for server establishment
-    //
+    /*
+    Core helper function for server establishment
+    */
     this.sockets.push(socket);
     callback();
     this.messageHandler(socket);
@@ -53,21 +55,31 @@ class P2PServer {
   }
 
   synchronizeChains() {
-    //
-    // Resolves conflicts among network nodes
-    //
+    /*
+    Resolves chain conflicts among network nodes by choosing a longest one
+    */
     this.sockets.forEach(socket => this.sendChainFrom(socket));
   }
 
+  broadcastTransaction(transaction) {
+    /*
+    ...
+    */
+    this.sockets.forEach(socket => this.sendTransaction(socket, transaction));
+  }
+
   messageHandler(socket) {
-    //
-    // Handler for message events (incoming messages) according to type
-    //
+    /*
+    Handler for message events (incoming messages) according to type
+    */
     socket.on("message", jsonMessage => {
       const message = JSON.parse(jsonMessage);
       switch (message.type) {
         case MESSAGE_TYPES.chain:
           this.blockchain.replaceChain(message.chain);
+          break;
+        case MESSAGE_TYPES.transaction:
+          this.transactionPool.update(message.transaction);
           break;
       }
     });
@@ -76,13 +88,25 @@ class P2PServer {
   /* ---------------------- (Outgoing) message actions -----------------------*/
 
   sendChainFrom(socket) {
-    //
-    // type: "CHAIN"
-    //
+    /*
+    type: "CHAIN"
+    */
     socket.send(
       JSON.stringify({
         type: MESSAGE_TYPES.chain,
         chain: this.blockchain.chain
+      })
+    );
+  }
+
+  sendTransaction(socket, transaction) {
+    /*
+    type: "TRANSACTION"
+    */
+    socket.send(
+      JSON.stringify({
+        type: MESSAGE_TYPES.transaction,
+        transaction: transaction
       })
     );
   }

@@ -13,12 +13,12 @@ const { P2PServer } = require("./p2p-network");
 const { Wallet, TransactionPool } = require("./wallet");
 const { HTTP_PORT } = require("./config");
 
-// Initiatlize app and p2p (web-socket) server
+// Initialize app and p2p (web-socket) server
 const app = express();
 const wallet = new Wallet();
 const transactionPool = new TransactionPool();
 const blockchain = new Blockchain();
-const p2pServer = new P2PServer(blockchain);
+const p2pServer = new P2PServer(blockchain, transactionPool);
 
 // Apply middlewares
 app.use(bodyParser.json());
@@ -40,11 +40,16 @@ app.post("/transact", (req, res) => {
     amount,
     transactionPool
   );
+  p2pServer.broadcastTransaction(transaction);
   res.redirect("./transactions");
 });
 
 app.get("/pendingData", (req, res) => {
   res.json(blockchain.pendingData);
+});
+
+app.get("/public-key", (req, res) => {
+  res.json({ publicKey: wallet.publicKey });
 });
 
 app.post("/pendingData/new", (req, res) => {
