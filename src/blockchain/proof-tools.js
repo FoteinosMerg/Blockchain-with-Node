@@ -9,15 +9,21 @@ function adjustDifficulty(difficulty, currentMoment, previousMoment) {
     : difficulty - 1;
 }
 
-function validProof(previousProof, proof, difficulty) {
+function validProof(data, previousHash, previousProof, proof, difficulty) {
   return (
-    sha256(`${previousProof}${proof}`)
+    sha256(`${data}${previousHash}${previousProof}${proof}${difficulty}`)
       .toString()
       .substring(0, difficulty) === "0".repeat(difficulty)
   );
 }
 
-function proofOfWork(previousNonce, previousDifficulty, previousTimestamp) {
+function proofOfWork(
+  data,
+  previousHash,
+  previousNonce,
+  previousDifficulty,
+  previousTimestamp
+) {
   const difficulty = adjustDifficulty(
     previousDifficulty,
     Date.now(),
@@ -25,7 +31,8 @@ function proofOfWork(previousNonce, previousDifficulty, previousTimestamp) {
   );
 
   let nonce = 0;
-  while (!validProof(previousNonce, nonce, difficulty)) nonce++;
+  while (!validProof(data, previousHash, previousNonce, nonce, difficulty))
+    nonce++;
 
   return { nonce: nonce, difficulty: difficulty };
 }

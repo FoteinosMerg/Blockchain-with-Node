@@ -25,6 +25,8 @@ class Blockchain {
     if (this.chain !== []) {
       const lastBlock = this.chain[this.chain.length - 1];
       const { nonce, difficulty } = proofOfWork(
+        this.pendingData.join(""),
+        lastBlock.hash,
         lastBlock.nonce,
         lastBlock.difficulty,
         lastBlock.timestamp
