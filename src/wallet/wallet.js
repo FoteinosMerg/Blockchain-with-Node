@@ -9,9 +9,6 @@ class Wallet {
   constructor() {
     this.balance = INITIAL_BALANCE;
     this.key = Signer.genKeyPair();
-
-    // Extract `pub` field of the above key and store its
-    // hexadecimal form to be the address of the wallet
     this.publicKey = this.key.getPublic().encode("hex");
   }
 
@@ -31,14 +28,6 @@ class Wallet {
         sha256(JSON.stringify(transaction.outputs)).toString()
       )
     };
-  }
-
-  verify(transaction) {
-    return Signer.verifySignature(
-      transaction.header.sender,
-      transaction.header.signature,
-      sha256(JSON.stringify(transaction.outputs)).toString()
-    );
   }
 
   performTransaction(recipient, amount, transactionPool) {

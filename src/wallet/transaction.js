@@ -36,9 +36,6 @@ class Transaction {
         ]
       );
 
-      // Substract sent amount from sender's wallet
-      senderWallet.balance = senderWallet.balance - amount;
-
       // Sign (modifies its header) and return transaction
       senderWallet.sign(transaction);
       return transaction;
@@ -46,7 +43,7 @@ class Transaction {
   }
 
   update(senderWallet, recipient, amount) {
-    if (amount > senderWallet.balance) {
+    if (amount > this.outputs[0].amount) {
       // Exit with error message
       console.log(`\n * Amount ${amount} exceeds current balance`);
       return;
@@ -56,8 +53,8 @@ class Transaction {
         address: recipient
       });
 
-      // Substract sent amount from sender's wallet
-      senderWallet.balance = senderWallet.balance - amount;
+      // Substract sent amount from the sender's cache
+      this.outputs[0].amount -= amount;
 
       // Re-sign (modifies its header) and return transaction
       senderWallet.sign(this);

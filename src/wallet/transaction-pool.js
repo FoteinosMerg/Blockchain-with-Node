@@ -1,8 +1,14 @@
 "use strict";
 
+const Signer = require("./signature-tools");
+
 class TransactionPool {
   constructor() {
     this.transactions = [];
+  }
+
+  findBySender(address) {
+    return this.transactions.find(t => t.header.sender === address);
   }
 
   update(transaction) {
@@ -21,8 +27,27 @@ class TransactionPool {
     }
   }
 
-  findBySender(address) {
-    return this.transactions.find(t => t.header.sender === address);
+  validTransactions() {
+    return this.transactions.filter(transaction => {
+      // Check balance
+      const totalOutput = transaction.outputs.reduce((total, current) => {
+        return total + current.amount;
+      }, 0);
+      if (totalOutput !== transaction.header.balance) {
+        console.log(
+          `\n * Invalid transaction performed by ${transaction.header.sender}`
+        );
+        return;
+      }
+
+      // Verify signatures
+      if (!Signer.verifyTransaction(transaction)) {
+        console.log(`Invalid signature from ${transaction.header.sender}`);
+        return;
+      }
+
+      return transaction;
+    });
   }
 }
 
