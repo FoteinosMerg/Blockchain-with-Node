@@ -41,7 +41,7 @@ class TransactionPool {
       }
 
       // Verify signature
-      if (!Signer.verifyTransaction(transaction)) {
+      if (!Signer.verify(transaction)) {
         console.log(`Invalid signature from ${transaction.header.sender}`);
         return;
       }

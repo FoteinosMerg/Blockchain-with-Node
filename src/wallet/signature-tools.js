@@ -13,7 +13,7 @@ class Signer {
     return ellipticCurve.genKeyPair();
   }
 
-  verify(transaction) {
+  static verify(transaction) {
     return Signer.verifySignature(
       transaction.header.sender,
       transaction.header.signature,
