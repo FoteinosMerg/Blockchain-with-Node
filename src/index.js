@@ -26,6 +26,16 @@ app.use(bodyParser.json());
 //app.use(bodyParser.urlencoded({ extended: false }));
 
 // Routing
+//app.get(["/", "/index"], (req, res) => res.send(message));
+//app.get(["/api/test", "/index"], (req, res) => res.send("Test api proxy"));
+//app.use("/api/users", require("./routes/users"));
+
+app.use("/api/blockchain", require("./app/routes/blockchain"));
+app.use("/api/wallet", require("./app/routes/wallet"));
+app.use("api/p2p-network", require("./app/routes/p2p-network"));
+
+// Routing
+
 app.get("/chain", (req, res) => {
   res.json(blockchain.chain);
 });
