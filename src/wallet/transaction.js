@@ -1,11 +1,11 @@
 "use strict";
 
-const uuid = require("uuid/v1"); // timestamp based version
+const uuid1 = require("uuid/v1"); // timestamp based version
 const { MINING_REWARD } = require("../config");
 
 class Transaction {
   constructor() {
-    this.id = uuid();
+    this.id = uuid1();
     this.header = null;
     this.outputs = [];
   }
