@@ -18,7 +18,6 @@ class Transaction {
     */
 
     if (amount > senderWallet.balance) {
-      // Exit with error message
       console.log(`\n * Amount ${amount} exceeds current balance`);
       return;
     } else {
@@ -44,7 +43,6 @@ class Transaction {
 
   update(senderWallet, recipient, amount) {
     if (amount > this.outputs[0].amount) {
-      // Exit with error message
       console.log(`\n * Amount ${amount} exceeds current balance`);
       return;
     } else {

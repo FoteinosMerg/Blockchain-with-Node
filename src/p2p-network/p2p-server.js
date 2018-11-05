@@ -5,7 +5,8 @@ const { P2P_PORT } = require("../config");
 const PEERS = process.env.PEERS ? process.env.PEERS.split(", ") : [];
 const MESSAGE_TYPES = {
   chain: "CHAIN",
-  transaction: "TRANSACTION"
+  transaction: "TRANSACTION",
+  clear_transaction_pool: "CLEAR_TRANSACTION_POOL"
 };
 
 class P2PServer {
@@ -54,6 +55,28 @@ class P2PServer {
     this.sendChainFrom(socket);
   }
 
+  messageHandler(socket) {
+    /*
+    Handles (incoming) message events according to type
+    */
+    socket.on("message", jsonMessage => {
+      const message = JSON.parse(jsonMessage);
+      switch (message.type) {
+        case MESSAGE_TYPES.chain:
+          this.blockchain.replaceChain(message.chain);
+          break;
+        case MESSAGE_TYPES.transaction:
+          this.transactionPool.update(message.transaction);
+          break;
+        case MESSAGE_TYPES.clear_transactions:
+          this.transactionPool.clear();
+          break;
+      }
+    });
+  }
+
+  /* ----------------------------- Broadcasting ----------------------------- */
+
   synchronizeChains() {
     /*
     Resolves chain conflicts among network nodes by choosing a longest one
@@ -68,24 +91,14 @@ class P2PServer {
     this.sockets.forEach(socket => this.sendTransaction(socket, transaction));
   }
 
-  messageHandler(socket) {
+  broadcastClearTransactionPool() {
     /*
-    Handler for message events (incoming messages) according to type
+    Broadcastast signal for clearing transaction pools
     */
-    socket.on("message", jsonMessage => {
-      const message = JSON.parse(jsonMessage);
-      switch (message.type) {
-        case MESSAGE_TYPES.chain:
-          this.blockchain.replaceChain(message.chain);
-          break;
-        case MESSAGE_TYPES.transaction:
-          this.transactionPool.update(message.transaction);
-          break;
-      }
-    });
+    this.sockets.forEach(socket => this.signalTransactionPoolClearance(socket));
   }
 
-  /* ---------------------- (Outgoing) message actions -----------------------*/
+  /* --------------------------- Message actions ---------------------------- */
 
   sendChainFrom(socket) {
     /*
@@ -107,6 +120,17 @@ class P2PServer {
       JSON.stringify({
         type: MESSAGE_TYPES.transaction,
         transaction: transaction
+      })
+    );
+  }
+
+  signalTransactionPoolClearance(socket) {
+    /*
+    type: "CLEAR_TRANSACTION_POOL"
+    */
+    socket.send(
+      JSON.stringify({
+        type: MESSAGE_TYPES.clear_transaction_pool
       })
     );
   }

@@ -40,7 +40,7 @@ class TransactionPool {
         return;
       }
 
-      // Verify signatures
+      // Verify signature
       if (!Signer.verifyTransaction(transaction)) {
         console.log(`Invalid signature from ${transaction.header.sender}`);
         return;
@@ -48,6 +48,10 @@ class TransactionPool {
 
       return transaction;
     });
+  }
+
+  clear() {
+    this.transactions = [];
   }
 }
 

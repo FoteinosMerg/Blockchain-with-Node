@@ -6,4 +6,5 @@ module.exports = {
   DIFFICULTY: process.env.DIFFICULTY,
   MINE_RATE: process.env.MINE_RATE,
   INITIAL_BALANCE: process.env.INITIAL_BALANCE
+  MINING_REWARD: process.env.MINING_REWARD
 };
