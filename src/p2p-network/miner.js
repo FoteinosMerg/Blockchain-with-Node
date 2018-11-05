@@ -1,28 +1,39 @@
 "use strict";
 
-const { BlockchainWallet } = require("../wallet");
+const { Wallet, Transaction } = require("../wallet");
 
 class Miner {
-  constructor(blockchain, transactionPool, wallet, p2pServer) {
+  constructor(blockchain, wallet, transactionPool, p2pServer) {
     this.blockchain = blockchain;
-    this.transactionPool = transactionPool;
     this.wallet = wallet;
+    this.transactionPool = transactionPool;
     this.p2pServer = p2pServer;
   }
 
   mine() {
     // Collect valid transactions from pool
-    const validTransactions = this.transactionPool.validTransaction();
+    const validTransactions = this.transactionPool.validTransactions();
+
     // Include reward for the miner
-    validTransactions.push(BlockchainWallet.reward(this.wallet));
+    validTransactions.push(
+      Transaction.reward(Wallet.blockchainWallet(), this.wallet)
+    );
+
     // Mine block storing valid transactions
     this.blockchain.pendingData.push(validTransactions);
     const block = this.blockchain.createBlock();
+
     // Synchronize chains among peers
     this.p2pServer.synchronizeChains();
-    // Clear transaction pool
+
+    // Clear own transaction pool
     this.transactionPool.clear();
-    // Broadcast
+
+    // Broadcast signal for clearing transaction pools
+    this.p2pServer.broadcastTransactionPoolClearance();
+
+    // Return mined block
+    return block;
   }
 }
 

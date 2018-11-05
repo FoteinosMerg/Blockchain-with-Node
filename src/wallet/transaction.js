@@ -1,6 +1,7 @@
 "use strict";
 
 const uuid = require("uuid/v1"); // timestamp based version
+const { MINING_REWARD } = require("../config");
 
 class Transaction {
   constructor() {
@@ -58,6 +59,17 @@ class Transaction {
       senderWallet.sign(this);
       return this;
     }
+  }
+
+  static reward(blockchainWallet, minerWallet) {
+    /* Creates and returns a reward transaction signed by the blockchain */
+    const transaction = new this();
+    transaction.outputs.push({
+      amount: MINING_REWARD,
+      address: minerWallet.publicKey
+    });
+    blockchainWallet.sign(transaction);
+    return transaction;
   }
 }
 

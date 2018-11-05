@@ -91,7 +91,7 @@ class P2PServer {
     this.sockets.forEach(socket => this.sendTransaction(socket, transaction));
   }
 
-  broadcastClearTransactionPool() {
+  broadcastTransactionPoolClearance() {
     /*
     Broadcastast signal for clearing transaction pools
     */

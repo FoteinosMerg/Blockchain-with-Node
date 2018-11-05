@@ -9,16 +9,17 @@ const bodyParser = require("body-parser");
 
 // Load files
 const Blockchain = require("./blockchain");
-const { P2PServer } = require("./p2p-network");
+const { P2PServer, Miner } = require("./p2p-network");
 const { Wallet, TransactionPool } = require("./wallet");
 const { HTTP_PORT } = require("./config");
 
-// Initialize app and p2p (web-socket) server
+// Initialize app, p2p (web-socket) server and miner
 const app = express();
+const blockchain = new Blockchain();
 const wallet = new Wallet();
 const transactionPool = new TransactionPool();
-const blockchain = new Blockchain();
 const p2pServer = new P2PServer(blockchain, transactionPool);
+const miner = new Miner(blockchain, wallet, transactionPool, p2pServer);
 
 // Apply middlewares
 app.use(bodyParser.json());
@@ -55,6 +56,12 @@ app.get("/public-key", (req, res) => {
 app.post("/pendingData/new", (req, res) => {
   const index = blockchain.storeTransactions(req.body.data);
   res.redirect("/pendingData");
+});
+
+app.get("/mine", (req, res) => {
+  const block = miner.mine();
+  console.log(`\n * New block mined: ${block}`);
+  res.redirect("/chain");
 });
 
 app.post("/mine", (req, res) => {
