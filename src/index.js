@@ -1,5 +1,9 @@
 "use strict";
 
+/*
+This file serves as the entry point to the application
+*/
+
 // In production, read environmental variables from ../.env
 if (process.env.NODE_ENV === "production") require("dotenv").config();
 
