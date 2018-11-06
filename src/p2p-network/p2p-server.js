@@ -86,7 +86,7 @@ class P2PServer {
 
   broadcastTransaction(transaction) {
     /*
-    Broadcastast the inserted transaction to the whole p2p-network
+    Broadcast the inserted transaction to the whole p2p-network
     */
     this.sockets.forEach(socket => this.sendTransaction(socket, transaction));
   }
@@ -102,7 +102,7 @@ class P2PServer {
 
   sendChainFrom(socket) {
     /*
-    type: "CHAIN"
+    type: CHAIN
     */
     socket.send(
       JSON.stringify({
@@ -114,7 +114,7 @@ class P2PServer {
 
   sendTransaction(socket, transaction) {
     /*
-    type: "TRANSACTION"
+    type: TRANSACTION
     */
     socket.send(
       JSON.stringify({
@@ -126,7 +126,7 @@ class P2PServer {
 
   signalTransactionPoolClearance(socket) {
     /*
-    type: "CLEAR_TRANSACTION_POOL"
+    type: CLEAR_TRANSACTION_POOL
     */
     socket.send(
       JSON.stringify({

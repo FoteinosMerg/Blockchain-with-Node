@@ -1,39 +1,61 @@
-"use strict";
-
 /*
 This file serves as the entry point to the application
 */
 
+"use strict";
+
 // In production, read environmental variables from ../.env
 if (process.env.NODE_ENV === "production") require("dotenv").config();
 
-// Load pacakges
-const express = require("express");
-const bodyParser = require("body-parser");
-
-// Load files
-const Blockchain = require("./blockchain");
-const { P2PServer, Miner } = require("./p2p-network");
-const { Wallet, TransactionPool } = require("./wallet");
 const { HTTP_PORT } = require("./config");
 
-// Initialize app, p2p (web-socket) server and miner
-const app = express();
-const blockchain = new Blockchain();
-const wallet = new Wallet();
-const transactionPool = new TransactionPool();
-const p2pServer = new P2PServer(blockchain, transactionPool);
-const miner = new Miner(blockchain, wallet, transactionPool, p2pServer);
+const createApp = function() {
+  // Load pacakges
+  const express = require("express");
+  const bodyParser = require("body-parser");
 
-// Apply middlewares
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+  // Load files
+  const Blockchain = require("./blockchain");
+  const { P2PServer, Miner } = require("./p2p-network");
+  const { Wallet, TransactionPool } = require("./wallet");
 
-// Routing
-app.use("/", require("./app/index"));
+  // Initialize objects
+  const blockchain = new Blockchain();
+  const wallet = new Wallet();
+  const transactionPool = new TransactionPool();
+  const p2pServer = new P2PServer(blockchain, transactionPool);
+  const miner = new Miner(blockchain, wallet, transactionPool, p2pServer);
+
+  // Attach objects to app
+  const app = express();
+  app.set("blockchain", blockchain);
+  app.set("wallet", wallet);
+  app.set("transactionPool", transactionPool);
+  app.set("p2pServer", p2pServer);
+  app.set("miner", miner);
+
+  // Parsing middlewares
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({ extended: false }));
+
+  return app;
+};
+
+// Initialize and export before applying routing middlewares
+const app = createApp();
+module.exports = {
+  app,
+  blockchain: app.settings.blockchain,
+  wallet: app.settings.wallet,
+  transactionPool: app.settings.transactionPool,
+  p2pServer: app.settings.p2pServer
+};
+
+// Routing middlewares
+app.get("/", (req, res) => res.redirect("/api"));
 app.use("/api", require("./app/index"));
 
-// Some routing for easy testing
+// Maintain here some routing for easy testing
 
 app.get("/chain", (req, res) => {
   res.json(blockchain.chain);
@@ -56,15 +78,11 @@ app.post("/transact", (req, res) => {
 });
 
 app.get("/pendingData", (req, res) => {
-  res.json(blockchain.pendingData);
-});
-
-app.get("/public-key", (req, res) => {
-  res.json({ publicKey: wallet.publicKey });
+  res.json(app.settings.blockchain.pendingData);
 });
 
 app.post("/pendingData/new", (req, res) => {
-  const index = blockchain.storeTransactions(req.body.data);
+  const index = app.settings.blockchain.storeTransactions(req.body.data);
   res.redirect("/pendingData");
 });
 
@@ -86,5 +104,5 @@ app.post("/mine", (req, res) => {
 // Bind to HTTP port (default: 5000) for front- to back-end communication
 app.listen(HTTP_PORT, () => {
   console.log(`\n * Server bound to port ${HTTP_PORT}`);
-  p2pServer.listen(); // Bind ws-server to P2P_PORT (default: 8080) for p2p-communication
+  app.settings.p2pServer.listen(); // Bind ws-server to P2P_PORT (default: 8080) for p2p-communication
 });

@@ -2,7 +2,7 @@
 
 const router = require("express").Router();
 
-router.get(["/", "/index"], (req, res) => {
+router.get("/", (req, res) => {
   res.json({ message: "Here is homepage" });
 });
 
