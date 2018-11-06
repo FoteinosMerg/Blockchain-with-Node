@@ -27,18 +27,13 @@ const miner = new Miner(blockchain, wallet, transactionPool, p2pServer);
 
 // Apply middlewares
 app.use(bodyParser.json());
-//app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // Routing
-//app.get(["/", "/index"], (req, res) => res.send(message));
-//app.get(["/api/test", "/index"], (req, res) => res.send("Test api proxy"));
-//app.use("/api/users", require("./routes/users"));
+app.use("/", require("./app/index"));
+app.use("/api", require("./app/index"));
 
-app.use("/api/blockchain", require("./app/routes/blockchain"));
-app.use("/api/wallet", require("./app/routes/wallet"));
-app.use("api/p2p-network", require("./app/routes/p2p-network"));
-
-// Routing
+// Some routing for easy testing
 
 app.get("/chain", (req, res) => {
   res.json(blockchain.chain);
@@ -91,6 +86,5 @@ app.post("/mine", (req, res) => {
 // Bind to HTTP port (default: 5000) for front- to back-end communication
 app.listen(HTTP_PORT, () => {
   console.log(`\n * Server bound to port ${HTTP_PORT}`);
-  // Bind ws-server to P2P_PORT (default: 8080) for peer to peer communication
-  p2pServer.listen();
+  p2pServer.listen(); // Bind ws-server to P2P_PORT (default: 8080) for p2p-communication
 });
