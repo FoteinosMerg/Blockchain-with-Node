@@ -13,6 +13,7 @@ const createApp = function() {
   // Load pacakges
   const express = require("express");
   const bodyParser = require("body-parser");
+  const path = require("path");
 
   // Load files
   const Blockchain = require("./blockchain");
@@ -34,12 +35,37 @@ const createApp = function() {
   app.set("p2pServer", p2pServer);
   app.set("miner", miner);
 
+  // View engine configuration
+  app.set("views", path.join(__dirname + "/app", "views"));
+  app.set("view engine", "pug");
+
+  // Remove info about framework type
+  app.disable("x-powered-by");
+
+  // Enforce HTTPS protocol
+  app.use(forceHTTPS);
+
   // Parsing middlewares
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: false }));
 
   return app;
 };
+
+/*
+ Enforces HTTPS if in production
+*/
+function forceHTTPS(req, res, next) {
+  if (
+    process.env.NODE_ENV == "producrion" &&
+    req.headers["x-forwarded-proto"] !== "https"
+  )
+    // Redirect user to the same URL with HTTPS instead of HTTP
+    return res.redirect("https://" + req.get("host") + req.url);
+
+  // Continue if the protocol is already HTTPS or we are not in production
+  next();
+}
 
 // Initialize and export before applying routing middlewares
 const app = createApp();

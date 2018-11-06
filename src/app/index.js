@@ -3,7 +3,7 @@
 const router = require("express").Router();
 
 router.get("/", (req, res) => {
-  res.json({ message: "Here is homepage" });
+  res.render("index");
 });
 
 router.use("/blockchain", require("./routes/blockchain"));
