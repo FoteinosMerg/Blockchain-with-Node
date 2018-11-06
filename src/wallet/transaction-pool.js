@@ -1,20 +1,33 @@
 "use strict";
 
 const Signer = require("./signature-tools");
+const { INITIAL_BALANCE } = require("../config");
 
 class TransactionPool {
   constructor() {
     this.transactions = [];
   }
 
-  findBySender(address) {
-    return this.transactions.find(t => t.header.sender === address);
+  toString() {
+    let poolString = "empty";
+
+    if (this.transactions.length > 0) {
+      poolString = "";
+      this.transactions.forEach(transaction => {
+        poolString += transaction.toString();
+      });
+    }
+    return poolString;
+  }
+
+  findBySender(publicKey) {
+    return this.transactions.find(t => t.cache.sender === publicKey);
   }
 
   update(transaction) {
     /*
-    Updates the pool either by pushing to it a new transaction or by updating
-    an already existing transaction (identified by the arguments id)
+    Updates the pool either by pushing to it a new transaction or by
+    updating an already existing transaction (identified by its id)
     */
 
     const found = this.transactions.find(t => t.id === transaction.id);
@@ -29,11 +42,13 @@ class TransactionPool {
 
   validTransactions() {
     return this.transactions.filter(transaction => {
-      // Check balance
+      // Calculate sum of outcoming payments
       const totalOutput = transaction.outputs.reduce((total, current) => {
         return total + current.amount;
       }, 0);
-      if (totalOutput !== transaction.header.balance) {
+
+      // Check balance
+      if (totalOutput + transaction.cache.balance !== INITIAL_BALANCE) {
         console.log(
           `\n * Invalid transaction performed by ${transaction.header.sender}`
         );

@@ -8,11 +8,14 @@ const { INITIAL_BALANCE } = require("../config");
 class Wallet {
   constructor() {
     this.balance = INITIAL_BALANCE;
-    this.key = Signer.genKeyPair();
+    this.key = Signer.genKeyPair(); // private key
     this.publicKey = this.key.getPublic().encode("hex");
   }
 
   static blockchainWallet() {
+    /*
+    To be used for signing mining rewards
+    */
     const blockchainWallet = new this();
     blockchainWallet.address = "__blockchain_wallet__";
     return blockchainWallet;
@@ -20,7 +23,6 @@ class Wallet {
 
   toString() {
     return `
-      type      : Wallet
       balance   : ${this.balance}
       publicKey : ${this.publicKey.toString().substring(0, 64)}...`;
   }
@@ -28,11 +30,13 @@ class Wallet {
   sign(transaction) {
     transaction.header = {
       timestamp: Date.now(),
-      balance: this.balance,
-      sender: this.publicKey,
       signature: this.key.sign(
         sha256(JSON.stringify(transaction.outputs)).toString()
       )
+    };
+    transaction.cache = {
+      sender: this.publicKey,
+      balance: this.balance
     };
   }
 
@@ -69,7 +73,7 @@ class Wallet {
 
     // Filter out transactions performed by this wallet
     const ownTransactions = transactions.filter(
-      transaction => transaction.header.sender === this.publicKey
+      transaction => transaction.cache.sender === this.publicKey
     );
 
     // Will be modified to store the moment that the most recent
@@ -92,7 +96,7 @@ class Wallet {
 
       // Store this wallet's cached balance at the moment, when the
       // most recent transaction performed by this wallet took place
-      balance = mostRecent.outputs[0].amount;
+      balance = mostRecent.cache.balance;
     }
 
     // Take into account incoming payments that took place after the moment,
@@ -100,7 +104,7 @@ class Wallet {
     transactions.forEach(transaction => {
       if (transaction.header.timestamp > mostRecentTimestamp) {
         transaction.outputs.find(output => {
-          if (output.address === this.publicKey) {
+          if (output.recipient === this.publicKey) {
             balance += output.amount;
           }
         });
@@ -109,6 +113,26 @@ class Wallet {
 
     // Update this wallet's balance
     this.balance = balance;
+  }
+
+  pendingTransactions(blockchain) {
+    /*
+    Returns a list with the currently unconfirmed
+    transactions performed by this wallet
+    */
+
+    // Collect all transactions stored in the blockchain
+    let transactions = [];
+    blockchain.chain.forEach(block =>
+      block.data.forEach(transaction => {
+        transactions.push(transaction);
+      })
+    );
+
+    // Filter out transactions performed by this wallet
+    const ownTransactions = transactions.filter(
+      transaction => transaction.cache.sender === this.publicKey
+    );
   }
 }
 module.exports = Wallet;
