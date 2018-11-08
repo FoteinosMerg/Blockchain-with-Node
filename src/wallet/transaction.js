@@ -51,16 +51,16 @@ class Transaction {
       return;
     } else {
       const transaction = new this();
-      this.cache = {
+      transaction.cache = {
         sender: senderWallet.publicKey,
-        amount: senderWallet.balance - amount
+        balance: senderWallet.balance - amount
       };
       transaction.outputs.push({
         recipient: recipient,
         amount: amount
       });
 
-      // Sign (modifies its header and cache) and return transaction
+      // Sign (modifies its header) and return transaction
       senderWallet.sign(transaction);
       return transaction;
     }
@@ -76,14 +76,11 @@ class Transaction {
         amount: amount
       });
 
-      // Store cached balance (will be lost from cache while signing below)
-      let cachedBalance = this.cache.balance;
+      // Substract sent amount from cache
+      this.cache.balance -= amount;
 
       // Re-sign transaction (modifies header and cache)
       senderWallet.sign(this);
-
-      // Substract sent amount from cache
-      this.cache.balance = cachedBalance - amount;
 
       return this;
     }
@@ -91,13 +88,11 @@ class Transaction {
 
   static reward(blockchainWallet, minerWallet) {
     /* Creates and returns a reward transaction signed by the blockchain */
-    const transaction = new this();
-    transaction.outputs.push({
-      recipient: minerWallet.publicKey,
-      amount: MINING_REWARD
-    });
-    blockchainWallet.sign(transaction);
-    return transaction;
+    return Transaction.new(
+      blockchainWallet,
+      minerWallet.publicKey,
+      MINING_REWARD
+    );
   }
 }
 

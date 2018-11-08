@@ -1,6 +1,7 @@
 "use strict";
 
-const ellipticCurve = new require("elliptic").ec("secp256k1");
+const Elliptic = require("elliptic");
+const ellipticCurve = new Elliptic.ec("secp256k1");
 
 function verifySignature(publicKey, signature, signedData) {
   return ellipticCurve
@@ -14,7 +15,7 @@ class Signer {
   }
 
   static verify(transaction) {
-    return Signer.verifySignature(
+    return verifySignature(
       transaction.header.sender,
       transaction.header.signature,
       sha256(JSON.stringify(transaction.outputs)).toString()

@@ -27,16 +27,12 @@ class Wallet {
       publicKey : ${this.publicKey.toString().substring(0, 64)}...`;
   }
 
-  sign(transaction) {
+  sign(transaction, firstTime = false) {
     transaction.header = {
       timestamp: Date.now(),
       signature: this.key.sign(
         sha256(JSON.stringify(transaction.outputs)).toString()
       )
-    };
-    transaction.cache = {
-      sender: this.publicKey,
-      balance: this.balance
     };
   }
 
