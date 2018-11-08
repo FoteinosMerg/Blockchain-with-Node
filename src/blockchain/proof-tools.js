@@ -34,7 +34,7 @@ function proofOfWork(
   while (!validProof(data, previousHash, previousNonce, nonce, difficulty))
     nonce++;
 
-  return { nonce: nonce, difficulty: difficulty };
+  return { nonce, difficulty };
 }
 
 module.exports = proofOfWork;
