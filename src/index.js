@@ -90,7 +90,7 @@ app.get("/pendingData", (req, res) => {
 });
 
 app.post("/pendingData/new", (req, res) => {
-  const index = app.settings.blockchain.storeTransactions(req.body.data);
+  app.settings.blockchain.storeData(req.body.data);
   res.redirect("/pendingData");
 });
 

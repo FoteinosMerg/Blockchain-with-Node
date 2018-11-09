@@ -20,7 +20,7 @@ class Miner {
     );
 
     // Mine block storing valid transactions
-    this.blockchain.pendingData.push(validTransactions);
+    this.blockchain.storeData(validTransactions);
     const block = this.blockchain.createBlock();
 
     // Synchronize chains among peers

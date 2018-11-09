@@ -1,7 +1,7 @@
 "use strict";
 
 const Block = require("./block");
-const proofOfWork = require("./proof-tools");
+const { proofOfWork } = require("./proof-tools");
 
 class Blockchain {
   constructor(createGenesisBlock = true) {
@@ -17,6 +17,10 @@ class Blockchain {
     ];
     this.chain.forEach(block => stringList.push(block.toString() + "\n"));
     return stringList.join("");
+  }
+
+  storeData(data) {
+    this.pendingData.push(...data);
   }
 
   createBlock() {
@@ -40,19 +44,12 @@ class Blockchain {
         this.pendingData.join(""),
         difficulty
       );
-    } else {
-      newBlock = Block.genesis(this.pendingData.join(""));
-    }
+    } else newBlock = Block.genesis(this.pendingData.join(""));
 
     this.pendingData = [];
     this.chain.push(newBlock);
 
     return newBlock;
-  }
-
-  storeTransactions(transactions) {
-    this.pendingData.push(...transactions);
-    return this.chain.length;
   }
 
   replaceChain(newChain) {

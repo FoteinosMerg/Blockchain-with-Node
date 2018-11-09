@@ -37,4 +37,4 @@ function proofOfWork(
   return { nonce, difficulty };
 }
 
-module.exports = proofOfWork;
+module.exports = { proofOfWork, validProof, adjustDifficulty };
