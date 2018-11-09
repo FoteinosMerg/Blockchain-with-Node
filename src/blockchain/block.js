@@ -30,7 +30,6 @@ class Block {
         "__there_is_no_previous_hash__",
         this.data,
         this.timestamp,
-        0,
         DIFFICULTY
       )
     );
