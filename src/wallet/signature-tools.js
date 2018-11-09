@@ -2,6 +2,7 @@
 
 const Elliptic = require("elliptic");
 const ellipticCurve = new Elliptic.ec("secp256k1");
+const sha256 = require('crypto-js/sha256')
 
 function verifySignature(publicKey, signature, signedData) {
   return ellipticCurve
@@ -16,7 +17,7 @@ class Signer {
 
   static verify(transaction) {
     return verifySignature(
-      transaction.header.sender,
+      transaction.cache.sender,
       transaction.header.signature,
       sha256(JSON.stringify(transaction.outputs)).toString()
     );
