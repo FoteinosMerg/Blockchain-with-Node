@@ -27,7 +27,7 @@ class Wallet {
       publicKey : ${this.publicKey.toString().substring(0, 64)}...`;
   }
 
-  sign(transaction, firstTime = false) {
+  sign(transaction) {
     transaction.header = {
       timestamp: Date.now(),
       signature: this.key.sign(
