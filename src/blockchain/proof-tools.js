@@ -4,7 +4,7 @@ const sha256 = require("crypto-js/sha256");
 const { MINE_RATE } = require("../config");
 
 function adjustDifficulty(difficulty, currentMoment, previousMoment) {
-  return currentMoment < previousMoment + MINE_RATE
+  return currentMoment < previousMoment + MINE_RATE || difficulty === 0
     ? difficulty + 1
     : difficulty - 1;
 }
