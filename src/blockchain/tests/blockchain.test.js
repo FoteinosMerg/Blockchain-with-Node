@@ -25,17 +25,22 @@ describe("Tests blockchain constructor", () => {
 const { MINE_RATE } = require("../../config");
 
 describe("General blockchaint tester", () => {
-  const blockchain1 = new Blockchain();
-  const blockchain2 = new Blockchain();
+  let blockchain1, block11;
+  let blockchain2, block21, block22;
 
-  blockchain1.storeData(["some-data-1", "some-data-2", "some-data-3"]);
-  const block11 = blockchain1.createBlock();
-  blockchain1.storeData(["some-data-4", "some-data-5"]);
+  beforeEach(() => {
+    blockchain1 = new Blockchain();
+    blockchain2 = new Blockchain();
 
-  blockchain2.storeData(["other-data-1", "other-data-2", "other-data-3"]);
-  const block21 = blockchain2.createBlock();
-  blockchain2.storeData(["other-data-4", "other-data-5"]);
-  const block22 = blockchain2.createBlock();
+    blockchain1.storeData(["some-data-1", "some-data-2", "some-data-3"]);
+    block11 = blockchain1.createBlock();
+    blockchain1.storeData(["some-data-4", "some-data-5"]);
+
+    blockchain2.storeData(["other-data-1", "other-data-2", "other-data-3"]);
+    block21 = blockchain2.createBlock();
+    blockchain2.storeData(["other-data-4", "other-data-5"]);
+    block22 = blockchain2.createBlock();
+  });
 
   it("tests storing data funcitonality", () => {
     expect(blockchain1.pendingData).toEqual(["some-data-4", "some-data-5"]);
@@ -76,11 +81,22 @@ describe("General blockchaint tester", () => {
     expect(blockchain1.chain).toEqual(blockchain2.chain);
   });
 
-  /*
+  ///*
   it("tests replace chain functionality", () => {
-    const oldChain = blockchain2.chain;
     blockchain2.replaceChain(blockchain1.chain);
-    expect(blockchain2.chain).toEqual(oldChain);
+    expect(blockchain2.chain).not.toEqual(blockchain1.chain);
   });
-  */
+  //*/
+
+  it("tests chain validity", () => {
+    expect(
+      Blockchain.isValid(blockchain1.chain) &&
+        Blockchain.isValid(blockchain2.chain) &&
+        Blockchain.isValid([])
+    ).toEqual(true);
+  });
+
+  //it("tests chain invalidity", () => {
+  //  blockchain
+  //})
 });
