@@ -2,6 +2,7 @@
 
 const sha256 = require("crypto-js/sha256");
 const Block = require("../block");
+const { DIFFICULTY } = require("../../config");
 
 describe("Tests hash function and block constructor", () => {
   // Expected hash
@@ -34,21 +35,51 @@ describe("Tests hash function and block constructor", () => {
       ).toString()
     );
   });
+});
 
-  describe("Tests genesis block construction and validation", () => {
-    const genesisBlock = Block.genesis("__could_be_anything_serialized__");
+describe("Tests genesis block construction and validation", () => {
+  const genesisBlock = Block.genesis("__could_be_anything_serialized__");
+  it("tests valid genesis blocks validation", () => {
+    expect(genesisBlock.isGenesisBlock()).toEqual(true);
+  });
+  it("tests non-valid genesis blocks validation", () => {
     const nonGenesisBlock = new Block(
-      99,
-      66,
-      "-some-random-32-bit-string-here-",
+      1,
+      0,
+      "__there_is_no_previous_hash__",
       "__could_be_anything_serialized__",
-      6
+      DIFFICULTY
     );
-    it("tests valid genesis blocks validation", () => {
-      expect(genesisBlock.isGenesisBlock()).toEqual(true);
-    });
-    it("tests non-valid genesis blocks validation", () => {
-      expect(nonGenesisBlock.isGenesisBlock()).toEqual(false);
-    });
+    expect(nonGenesisBlock.isGenesisBlock()).toEqual(false);
+  });
+  it("tests non-valid genesis blocks validation", () => {
+    const nonGenesisBlock = new Block(
+      0,
+      1,
+      "__there_is_no_previous_hash__",
+      "__could_be_anything_serialized__",
+      DIFFICULTY
+    );
+    expect(nonGenesisBlock.isGenesisBlock()).toEqual(false);
+  });
+  it("tests non-valid genesis blocks validation", () => {
+    const nonGenesisBlock = new Block(
+      0,
+      0,
+      "_____could_be_anything_else_____",
+      "__could_be_anything_serialized__",
+      DIFFICULTY
+    );
+    expect(nonGenesisBlock.isGenesisBlock()).toEqual(false);
+  });
+  it("tests non-valid genesis blocks validation", () => {
+    const nonGenesisBlock = new Block(
+      0,
+      0,
+      "__there_is_no_previous_hash__",
+      "__could_be_anything_serialized__",
+      DIFFICULTY + 1
+    );
+    expect(nonGenesisBlock.isGenesisBlock()).toEqual(false);
   });
 });

@@ -23,15 +23,19 @@ class Block {
 
   isGenesisBlock() {
     return (
+      this.index === 0 &&
+      this.nonce === 0 &&
+      this.previousHash === "__there_is_no_previous_hash__" &&
+      this.difficulty === DIFFICULTY &&
       this.hash ===
-      Block.hash(
-        0,
-        0,
-        "__there_is_no_previous_hash__",
-        this.data,
-        this.timestamp,
-        DIFFICULTY
-      )
+        Block.hash(
+          0,
+          0,
+          "__there_is_no_previous_hash__",
+          this.data,
+          this.timestamp,
+          DIFFICULTY
+        )
     );
   }
 

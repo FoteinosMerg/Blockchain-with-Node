@@ -21,7 +21,7 @@ describe("Tests blockchain constructor", () => {
   });
 });
 
-// Must be configured to 2, in order for this test to complete shortly
+// Must be configured to 1, in order for this test to complete fastly
 const { MINE_RATE } = require("../../config");
 
 describe("General blockchaint tester", () => {
@@ -96,7 +96,9 @@ describe("General blockchaint tester", () => {
     ).toEqual(true);
   });
 
-  //it("tests chain invalidity", () => {
-  //  blockchain
-  //})
+  it("tests chain invalidity when the first block is not genesis", () => {
+    blockchain2.chain[0].previousHash = "tampered";
+    expect(blockchain2.chain[0].isGenesisBlock()).toEqual(false);
+    //expect(Blockchain.isValid(blockchain2.chain)).toEqual(false);
+  });
 });
