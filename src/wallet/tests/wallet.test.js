@@ -4,21 +4,88 @@ const sha256 = require("crypto-js/sha256");
 
 const Transaction = require("../transaction");
 const Wallet = require("../wallet");
+const Blockchain = require("../../blockchain");
 const TransactionPool = require("../transaction-pool");
 
-describe("Tests sign function", () => {
-  const transaction = new Transaction();
+const { INITIAL_BALANCE } = require("../../config");
+
+describe("Tests wallet construction and signature", () => {
   const wallet = new Wallet();
-  wallet.sign(transaction); // no outputs at signing moment
-  it("tests transaction signature", () => {
+  it("tests wallet constructor", () => {
+    expect(wallet).toEqual({
+      balance: INITIAL_BALANCE,
+      key: wallet.key,
+      publicKey: wallet.publicKey
+    });
+  });
+  it("tests signature", () => {
+    const transaction = new Transaction();
+    transaction.outputs = ["a", "n", "y", "t", "h", "i", "n", "g"];
+    wallet.sign(transaction);
     expect(transaction.header.signature).toEqual(
-      wallet.key.sign(sha256(JSON.stringify([])).toString())
+      wallet.key.sign(sha256(JSON.stringify(transaction.outputs)).toString())
     );
+  });
+  it("tests blockchain wallet construction", () => {
+    const blockchainWallet = Wallet.blockchainWallet();
+    expect(blockchainWallet.address).toEqual("__blockchain_wallet__");
   });
 });
 
-const transactionPool = new TransactionPool();
+describe("Transaction suite tester", () => {
+  const wallet_1 = new Wallet();
+  const wallet_2 = new Wallet();
+  const blockchain = new Blockchain();
+  const transactionPool = new TransactionPool();
 
-describe("Tests performing transactions function", () => {
-  it("tests failure in case amount exceeds cached balance", () => {});
+  it("checks balance recalculation before any transactions performed", () => {
+    wallet_1.recalculateBalance(blockchain);
+    expect(wallet_1.balance).toEqual(INITIAL_BALANCE);
+  });
+
+  // Will hold payments performed by wallet_1
+  let transaction_1 = wallet_1.performTransaction(
+    wallet_2,
+    100,
+    blockchain,
+    transactionPool
+  ); // wallet_1's cached balance is 400
+
+  it("checks that transaction_1 has been cached", () => {
+    expect(transactionPool.transactions).toEqual([transaction_1]);
+  });
+
+  transaction_1 = wallet_1.performTransaction(
+    wallet_2,
+    50,
+    blockchain,
+    transactionPool
+  ); // wallet_1's cached balance is 350
+
+  it("checks that transaction_1 has been updated but not cached anew", () => {
+    expect(transactionPool.transactions).toEqual([transaction_1]);
+  });
+
+  it("checks failure in case of amount exceeding balance", () => {
+    const failedTransaction = wallet_1.performTransaction(
+      wallet_2,
+      INITIAL_BALANCE + 1, // edge case before block creation
+      blockchain,
+      transactionPool
+    );
+    expect(failedTransaction).toEqual(undefined);
+  });
+
+  // ``Mining``
+  blockchain.createBlock();
+
+  // Will hold payments performed by wallet_2
+  /*
+  let transaction_2 = wallet_2.performTransaction(
+    wallet_1,
+    200,
+    blockchain,
+    transactionPool
+  ); // wallet_2's cached balance is 300
+  */
 });

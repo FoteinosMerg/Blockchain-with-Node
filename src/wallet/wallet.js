@@ -17,7 +17,10 @@ class Wallet {
     To be used for signing mining rewards
     */
     const blockchainWallet = new this();
+
+    // Set blockchain wallet identifier
     blockchainWallet.address = "__blockchain_wallet__";
+
     return blockchainWallet;
   }
 
@@ -77,7 +80,7 @@ class Wallet {
     let mostRecentTimestamp = 0;
 
     // Detect the most recent of the transactions performed by this wallet;
-    // (ensure to avoid reducing (`undefined`) in case of an empty array)
+    // (ensure to avoid reducing to `undefined` in case of an empty array)
     if (ownTransactions.length > 0) {
       const mostRecent = ownTransactions.reduce(
         (previous, current) =>

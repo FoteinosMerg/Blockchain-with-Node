@@ -26,11 +26,11 @@ class Blockchain {
   createBlock() {
     let newBlock;
 
-    if (this.chain !== []) {
+    if (this.chain.length) {
       const lastBlock = this.chain[this.chain.length - 1];
 
       const { nonce, difficulty } = proofOfWork(
-        this.pendingData.join(""),
+        this.pendingData, //this.pendingData.join(""), //
         lastBlock.hash,
         lastBlock.nonce,
         lastBlock.difficulty,
@@ -41,10 +41,10 @@ class Blockchain {
         this.chain.length,
         nonce,
         lastBlock.hash,
-        this.pendingData.join(""),
+        this.pendingData, //this.pendingData.join(""),
         difficulty
       );
-    } else newBlock = Block.genesis(this.pendingData.join(""));
+    } else newBlock = Block.genesis(this.pendingData);
 
     this.pendingData = [];
     this.chain.push(newBlock);

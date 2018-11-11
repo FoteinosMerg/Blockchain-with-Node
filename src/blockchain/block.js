@@ -64,7 +64,7 @@ class Block {
 
   /* ------------------------------ Static methods -------------------------- */
 
-  static genesis(data = "") {
+  static genesis(data = []) {
     return new this(0, 0, "__there_is_no_previous_hash__", data, DIFFICULTY);
   }
 
