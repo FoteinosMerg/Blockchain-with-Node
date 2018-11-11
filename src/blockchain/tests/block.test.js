@@ -4,7 +4,7 @@ const sha256 = require("crypto-js/sha256");
 const Block = require("../block");
 const { DIFFICULTY } = require("../../config");
 
-describe("Tests hash function and block constructor", () => {
+describe("Tests hash function, block constructor and copy functionality", () => {
   // Expected hash
   const hash =
     "afb590f7d47d9403d20c1061c76cd21e157f392614e407231bff35f2b68bcaeb";
@@ -25,8 +25,9 @@ describe("Tests hash function and block constructor", () => {
     ).toEqual(hash);
   });
 
+  const block = new Block(index, nonce, previousHash, data, difficulty);
+
   it("tests block construction via hash", () => {
-    const block = new Block(index, nonce, previousHash, data, difficulty);
     expect(block.hash).toEqual(
       sha256(
         `${block.index}${block.nonce}${block.previousHash}${block.data}${

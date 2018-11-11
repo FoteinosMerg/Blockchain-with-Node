@@ -29,8 +29,8 @@ describe("General blockchaint tester", () => {
   let blockchain2, block21, block22;
 
   beforeEach(() => {
-    blockchain1 = new Blockchain();
-    blockchain2 = new Blockchain();
+    blockchain1 = new Blockchain(); // Will have length 2
+    blockchain2 = new Blockchain(); // Will have length 3
 
     blockchain1.storeData(["some-data-1", "some-data-2", "some-data-3"]);
     block11 = blockchain1.createBlock();
@@ -92,13 +92,32 @@ describe("General blockchaint tester", () => {
     expect(
       Blockchain.isValid(blockchain1.chain) &&
         Blockchain.isValid(blockchain2.chain) &&
-        Blockchain.isValid([])
+        Blockchain.isValid([]) // Edge case
     ).toEqual(true);
   });
 
   it("tests chain invalidity when the first block is not genesis", () => {
     blockchain2.chain[0].previousHash = "tampered";
-    expect(blockchain2.chain[0].isGenesisBlock()).toEqual(false);
-    //expect(Blockchain.isValid(blockchain2.chain)).toEqual(false);
+    expect(Blockchain.isValid(blockchain2.chain)).toEqual(false);
+  });
+
+  it("tests chain invalidity in case of tampered hash chain", () => {
+    blockchain2.chain[1].hash = "tampered";
+    expect(Blockchain.isValid(blockchain2.chain)).toEqual(false);
+  });
+
+  it("tests chain invalidity in case of tampered data", () => {
+    blockchain2.chain[1].data = "tampered";
+    expect(Blockchain.isValid(blockchain2.chain)).toEqual(false);
+  });
+
+  it("tests chain invalidity in case of tampered proof", () => {
+    blockchain2.chain[1].nonce = -1;
+    expect(Blockchain.isValid(blockchain2.chain)).toEqual(false);
+  });
+
+  it("tests chain invalidity in case of tampered last hash", () => {
+    blockchain2.chain[blockchain2.chain.length - 1].hash = "tampered";
+    expect(Blockchain.isValid(blockchain2.chain)).toEqual(false);
   });
 });
