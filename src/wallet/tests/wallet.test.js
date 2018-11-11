@@ -88,23 +88,4 @@ describe("Transaction suite tester", () => {
     wallet_2.recalculateBalance(blockchain);
     expect(wallet_1.balance === 350 && wallet_2.balance === 650).toEqual(true);
   });
-
-  //wallet_1.recalculateBalance(blockchain);
-  //wallet_2.recalculateBalance(blockchain);
-  //it("tests balance recalculation after block mining", () => {
-  //  expect(wallet_1.balance).toEqual(350);
-  //});
-
-  // wallet_1's balance is now 350
-  // wallet_2's balance is now 650
-
-  // Will hold payments performed by wallet_2
-  /*
-  let transaction_2 = wallet_2.performTransaction(
-    wallet_1,
-    200,
-    blockchain,
-    transactionPool
-  ); // wallet_2's cached balance is 300
-  */
 });
