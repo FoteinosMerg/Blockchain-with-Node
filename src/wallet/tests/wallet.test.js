@@ -45,7 +45,7 @@ describe("Transaction suite tester", () => {
 
   // Will hold payments performed by wallet_1
   let transaction_1 = wallet_1.performTransaction(
-    wallet_2,
+    wallet_2.publicKey,
     100,
     blockchain,
     transactionPool
@@ -56,7 +56,7 @@ describe("Transaction suite tester", () => {
   });
 
   transaction_1 = wallet_1.performTransaction(
-    wallet_2,
+    wallet_2.publicKey,
     50,
     blockchain,
     transactionPool
@@ -68,16 +68,35 @@ describe("Transaction suite tester", () => {
 
   it("checks failure in case of amount exceeding balance", () => {
     const failedTransaction = wallet_1.performTransaction(
-      wallet_2,
-      INITIAL_BALANCE + 1, // edge case before block creation
+      wallet_2.publicKey,
+      INITIAL_BALANCE + 1, // edge case before first block mining
       blockchain,
       transactionPool
     );
     expect(failedTransaction).toEqual(undefined);
   });
 
-  // ``Mining``
-  blockchain.createBlock();
+  // Store current transactions as pending data
+  blockchain.storeData(transactionPool.transactions);
+
+  it("checks immediate balance recalculation after block mining", () => {
+    // ``Mining``
+    blockchain.createBlock();
+
+    // Balance recalculation
+    wallet_1.recalculateBalance(blockchain);
+    wallet_2.recalculateBalance(blockchain);
+    expect(wallet_1.balance === 350 && wallet_2.balance === 650).toEqual(true);
+  });
+
+  //wallet_1.recalculateBalance(blockchain);
+  //wallet_2.recalculateBalance(blockchain);
+  //it("tests balance recalculation after block mining", () => {
+  //  expect(wallet_1.balance).toEqual(350);
+  //});
+
+  // wallet_1's balance is now 350
+  // wallet_2's balance is now 650
 
   // Will hold payments performed by wallet_2
   /*
