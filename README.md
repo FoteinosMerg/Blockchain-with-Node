@@ -2,7 +2,7 @@
 
 Under construction
 
-`
+```
 src
 ├── app
 │   ├── index.js
@@ -42,5 +42,4 @@ src
 ├── transaction.js
 ├── transaction-pool.js
 └── wallet.js
-
-`
+```
