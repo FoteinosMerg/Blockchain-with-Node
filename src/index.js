@@ -1,13 +1,10 @@
-/*
-This file serves as the entry point to the application
-*/
-
 "use strict";
 
 // In production, read environmental variables from ../.env
 if (process.env.NODE_ENV === "production") require("dotenv").config();
 
-const { HTTP_PORT } = require("./config");
+const opn = require("opn");
+const { ADDRESS, HTTP_PORT } = require("./config");
 
 const createApp = function() {
   // Load pacakges
@@ -15,7 +12,7 @@ const createApp = function() {
   const bodyParser = require("body-parser");
   const path = require("path");
 
-  // Load files
+  // Load object files
   const Blockchain = require("./blockchain");
   const { P2PServer, Miner } = require("./p2p-network");
   const { Wallet, TransactionPool } = require("./wallet");
@@ -50,6 +47,7 @@ const createApp = function() {
 };
 
 // Initialize and export before applying routing middlewares
+// so that objects attached to app be accessible at routing
 const app = createApp();
 module.exports = {
   app,
@@ -63,7 +61,7 @@ module.exports = {
 app.get("/", (req, res) => res.redirect("/api"));
 app.use("/api", require("./app/index"));
 
-// Maintain here some routing for easy testing
+// ------------------ Maintain here some routing for easy testing
 
 app.get("/chain", (req, res) => {
   res.json(blockchain.chain);
@@ -109,8 +107,15 @@ app.post("/mine", (req, res) => {
   res.redirect("/chain");
 });
 
-// Bind to HTTP port (default: 5000) for front- to back-end communication
-app.listen(HTTP_PORT, () => {
-  console.log(`\n * Server bound to port ${HTTP_PORT}`);
-  app.settings.p2pServer.listen(); // Bind ws-server to P2P_PORT (default: 8080) for p2p-communication
+// -------------------------------------------------------------------
+
+// Bind client at HTTP_PORT (default: 5000) for front- to back-end communication
+app.listen(HTTP_PORT, ADDRESS, () => {
+  // Launch app with default browser
+  opn(`http://localhost:${HTTP_PORT}`);
+  console.log(
+    `\n * Application server bound to http://${ADDRESS}:${HTTP_PORT}`
+  );
+  // Bind ws-server at P2P_PORT (default: 8080) for communication between peers
+  app.settings.p2pServer.listen();
 });

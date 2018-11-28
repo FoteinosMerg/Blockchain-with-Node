@@ -1,7 +1,7 @@
 {
   "name": "Blockchain-with-Node",
   "version": "1.0.0",
-  "description": "Blockchain built upon Node.js",
+  "description": "Blockchain built with Node.js",
   "main": "src/index.js",
   "engines": {
     "node": "8.1.1",
@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "node ./src",
-    "dev": "nodemon --exec babel-node ./src",
+    "dev": "nodemon --exec babel-node --ignore databases/ ./src",
     "dev-test": "nodemon dev-test",
     "test": "jest --watchAll"
   },
@@ -32,6 +32,7 @@
     "dotenv": "^6.0.0",
     "elliptic": "^6.4.1",
     "express": "^4.16.4",
+    "opn": "^5.4.0",
     "pug": "^2.0.3",
     "uuid": "^3.3.2",
     "ws": "^6.1.0"

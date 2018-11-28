@@ -1,6 +1,6 @@
 # Blockchain-with-Node
 
-Under construction
+Work in progress...
 
 ```
 src
