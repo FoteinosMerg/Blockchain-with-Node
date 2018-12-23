@@ -1,14 +1,9 @@
 # Blockchain-with-Node
 
-Work in progress...
+Work in progress
+----------------
 
-```
-.
-├── databases
-│   └── index.json
-├── package.json
-├── package-lock.json
-├── README.md
+```shell
 └── src
     ├── app
     │   ├── index.js
@@ -49,4 +44,5 @@ Work in progress...
         ├── transaction.js
         ├── transaction-pool.js
         └── wallet.js
+
 ```
